@@ -1,0 +1,31 @@
+import json
+import boto3
+import urllib.parse
+
+s3_client = boto3.client('s3')
+
+def lambda_handler(event, context):
+    # Log the received event
+    print("Received event: " + json.dumps(event, indent=2))
+
+    # Extract the source bucket and object key from the event
+    source_bucket = event['Records'][0]['s3']['bucket']['name']
+    source_key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'])
+    
+    # Only process .xlsx files
+    if not source_key.endswith('.xlsx'):
+        print(f"Skipping non-xlsx file: {source_key}")
+        return
+
+    # Define the destination bucket and key
+    destination_bucket = 'copyto-rohan'
+    destination_key = source_key
+
+    try:
+        # Copy the object from the source bucket to the destination bucket
+        copy_source = {'Bucket': source_bucket, 'Key': source_key}
+        s3_client.copy_object(CopySource=copy_source, Bucket=destination_bucket, Key=destination_key)
+        print(f"Successfully copied {source_key} from {source_bucket} to {destination_bucket}")
+    except Exception as e:
+        print(f"Error copying object: {e}")
+        raise e
