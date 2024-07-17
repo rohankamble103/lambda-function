@@ -2,6 +2,11 @@
 
 This project demonstrates a workflow using AWS Lambda, S3, and RDS to fetch data from a MySQL/RDS database, convert it into an `.xlsx` file, and manage file transfers between S3 buckets.
 
+## Sequence Diagram
+
+![Sequence Diagram](/diagram.png)
+
+
 ## Workflow Overview
 
 1. **Source S3 Bucket Creation**:
@@ -69,4 +74,5 @@ Ensure all dependencies are packaged with your Lambda function code or included 
 5. **Deploy and Test**:
     - Deploy your Lambda functions and ensure they are configured correctly.
     - Test the setup by uploading an `.xlsx` file to Bucket1 and verifying it is copied to Bucket2.
+  
 
