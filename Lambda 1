@@ -1,0 +1,47 @@
+import boto3
+import pymysql
+import openpyxl
+from openpyxl import Workbook
+import os
+
+# Initialize the S3 client
+s3_client = boto3.client('s3')
+
+# Database connection details
+rds_host = "208.65.84.211"
+username = "root"
+password = "1234"
+database_name = "wordpress "
+
+def lambda_handler(event, context):
+    # Connect to the database
+    connection = pymysql.connect(host=rds_host, user=username, passwd=password, db=database_name)
+    
+    try:
+        # Execute the SQL query
+        with connection.cursor() as cursor:
+            sql_query = "SELECT * FROM your_table_or_view"
+            cursor.execute(sql_query)
+            result = cursor.fetchall()
+        
+        # Create a workbook and add a worksheet
+        wb = Workbook()
+        ws = wb.active
+        
+        # Add the data to the worksheet
+        for row in result:
+            ws.append(row)
+        
+        # Save the workbook to a temporary file
+        temp_file = '/tmp/data.xlsx'
+        wb.save(temp_file)
+        
+        # Upload the file to S3
+        bucket_name = "copyfrom-rohan"
+        s3_key = "data.xlsx"
+        s3_client.upload_file(temp_file, bucket_name, s3_key)
+        
+        print(f"File uploaded to S3 bucket {bucket_name} with key {s3_key}")
+        
+    finally:
+        connection.close()
